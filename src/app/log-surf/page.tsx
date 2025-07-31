@@ -214,13 +214,13 @@ function LogSurfContent() {
               </label>
               <div className="grid grid-cols-3 gap-3">
                {[
-  { value: '6am', label: '6AM', time: '6-8AM' },
-  { value: '8am', label: '8AM', time: '8-10AM' },
-  { value: '10am', label: '10AM', time: '10AM-12PM' },
-  { value: '12pm', label: '12PM', time: '12-2PM' },
-  { value: '2pm', label: '2PM', time: '2-4PM' },
-  { value: '4pm', label: '4PM', time: '4-6PM' },
-  { value: '6pm', label: '6PM', time: '6-8PM' }
+  { value: '6am', label: '6-8AM', time: '' },
+  { value: '8am', label: '8-10AM', time: '' },
+  { value: '10am', label: '10AM-12PM', time: '' },
+  { value: '12pm', label: '12-2PM', time: '' },
+  { value: '2pm', label: '2-4PM', time: '' },
+  { value: '4pm', label: '4-6PM', time: '' },
+  { value: '6pm', label: '6-8PM', time: '' }
 ].map((option) => (
                   <button
                     key={option.value}
