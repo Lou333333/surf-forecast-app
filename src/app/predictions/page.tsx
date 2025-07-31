@@ -69,9 +69,13 @@ export default function Predictions() {
       const today = new Date().toISOString().split('T')[0]
       const currentHour = new Date().getHours()
       
-      let timeOfDay = 'morning'
-      if (currentHour >= 12 && currentHour < 17) timeOfDay = 'midday'
-      else if (currentHour >= 17) timeOfDay = 'afternoon'
+      let timeOfDay = '6am'
+      if (currentHour >= 8 && currentHour < 10) timeOfDay = '8am'
+      else if (currentHour >= 10 && currentHour < 12) timeOfDay = '10am'
+      else if (currentHour >= 12 && currentHour < 14) timeOfDay = '12pm'
+      else if (currentHour >= 14 && currentHour < 16) timeOfDay = '2pm'
+      else if (currentHour >= 16 && currentHour < 18) timeOfDay = '4pm'
+      else if (currentHour >= 18 && currentHour < 20) timeOfDay = '6pm'
 
       const { data: currentForecast, error: forecastError } = await supabase
         .from('forecast_data')
@@ -199,12 +203,12 @@ export default function Predictions() {
     ) as 'amazing' | 'fun' | 'bad'
   }
 
-  const getPredictionColor = (prediction: string) => {
+  const getPredictionStyle = (prediction: string) => {
     switch (prediction) {
-      case 'amazing': return 'text-green-600 bg-green-100'
-      case 'fun': return 'text-yellow-600 bg-yellow-100'
-      case 'bad': return 'text-red-600 bg-red-100'
-      default: return 'text-gray-600 bg-gray-100'
+      case 'amazing': return { backgroundColor: '#16a34a', color: '#ffffff' }
+      case 'fun': return { backgroundColor: '#eab308', color: '#ffffff' }
+      case 'bad': return { backgroundColor: '#dc2626', color: '#ffffff' }
+      default: return { backgroundColor: '#6b7280', color: '#ffffff' }
     }
   }
 
@@ -228,90 +232,140 @@ export default function Predictions() {
   return (
     <div className="min-h-screen bg-blue-50">
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="flex items-center mb-6">
-          <button 
-            onClick={() => router.push('/dashboard')}
-            className="text-blue-500 hover:text-blue-700 mr-4"
-          >
-            ← Back to Dashboard
-          </button>
-          <h1 className="text-3xl font-bold text-gray-800">Surf Predictions</h1>
-        </div>
-
-        {predictions.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-6 text-center">
-            <h2 className="text-xl font-semibold mb-4">No Predictions Available</h2>
-            <p className="text-gray-600 mb-4">
-              You need more surf sessions logged to generate predictions. Log at least 5-10 sessions per break to see personalized forecasts.
-            </p>
-            <button 
-              onClick={() => router.push('/log-surf')}
-              className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
-            >
-              Log More Sessions
-            </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+          {/* Header */}
+          <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', padding: '24px', border: '2px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+              <button 
+                onClick={() => router.push('/dashboard')}
+                style={{
+                  color: '#2563eb',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  marginRight: '16px',
+                  fontSize: '16px',
+                  fontWeight: 'bold'
+                }}
+              >
+                ← Back to Dashboard
+              </button>
+              <h1 style={{ fontSize: '32px', fontWeight: 'bold', color: '#1f2937', margin: 0 }}>Surf Predictions</h1>
+            </div>
           </div>
-        ) : (
-          <div className="space-y-4">
-            {predictions.map((prediction) => (
-              <div key={prediction.breakId} className="bg-white rounded-lg shadow-md p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="text-xl font-semibold">{prediction.breakName}</h3>
-                    <p className="text-gray-600">{prediction.region}</p>
-                  </div>
-                  <div className={`px-4 py-2 rounded-lg ${getPredictionColor(prediction.prediction)}`}>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-2xl">{getPredictionEmoji(prediction.prediction)}</span>
-                      <span className="font-semibold capitalize">{prediction.prediction}</span>
+
+          {predictions.length === 0 ? (
+            <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', padding: '48px', border: '2px solid #e2e8f0', textAlign: 'center' }}>
+              <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px', color: '#1f2937' }}>No Predictions Available</h2>
+              <p style={{ color: '#6b7280', marginBottom: '24px', fontSize: '16px' }}>
+                You need more surf sessions logged to generate predictions. Log at least 5-10 sessions per break to see personalized forecasts.
+              </p>
+              <button 
+                onClick={() => router.push('/log-surf')}
+                style={{
+                  backgroundColor: '#2563eb',
+                  color: '#ffffff',
+                  padding: '12px 24px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                }}
+              >
+                Log More Sessions
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {predictions.map((prediction) => (
+                <div key={prediction.breakId} style={{ backgroundColor: '#ffffff', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', padding: '24px', border: '2px solid #e2e8f0' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+                    <div>
+                      <h3 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1f2937', margin: '0 0 4px 0' }}>{prediction.breakName}</h3>
+                      <p style={{ color: '#6b7280', margin: 0, fontSize: '16px' }}>{prediction.region}</p>
+                    </div>
+                    <div style={{
+                      ...getPredictionStyle(prediction.prediction),
+                      padding: '12px 20px',
+                      borderRadius: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                    }}>
+                      <span style={{ fontSize: '24px' }}>{getPredictionEmoji(prediction.prediction)}</span>
+                      <span style={{ fontWeight: 'bold', fontSize: '18px', textTransform: 'capitalize' }}>{prediction.prediction}</span>
                     </div>
                   </div>
+
+                  {prediction.prediction !== 'unknown' && (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '20px', marginBottom: '20px' }}>
+                      <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#2563eb', marginBottom: '4px' }}>{prediction.confidence}%</div>
+                        <div style={{ color: '#6b7280', fontSize: '14px' }}>Confidence</div>
+                      </div>
+                      <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#16a34a', marginBottom: '4px' }}>{prediction.similarSessions}</div>
+                        <div style={{ color: '#6b7280', fontSize: '14px' }}>Similar Sessions</div>
+                      </div>
+                      <div style={{ textAlign: 'center' }}>
+                        <button 
+                          onClick={() => router.push(`/log-surf?break=${prediction.breakId}`)}
+                          style={{
+                            backgroundColor: '#16a34a',
+                            color: '#ffffff',
+                            padding: '8px 16px',
+                            borderRadius: '8px',
+                            border: 'none',
+                            cursor: 'pointer',
+                            fontSize: '14px',
+                            fontWeight: 'bold',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                          }}
+                        >
+                          Log Today's Surf
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {prediction.currentForecast && (
+                    <div style={{ borderTop: '2px solid #e5e7eb', paddingTop: '20px', backgroundColor: '#f8fafc', padding: '20px', borderRadius: '8px', marginTop: '16px' }}>
+                      <h4 style={{ fontWeight: 'bold', marginBottom: '12px', color: '#1f2937', fontSize: '18px' }}>Current Conditions:</h4>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '16px' }}>
+                        <div style={{ textAlign: 'center' }}>
+                          <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#2563eb', marginBottom: '4px' }}>
+                            {prediction.currentForecast.swell_height || 'N/A'}ft
+                          </div>
+                          <div style={{ fontSize: '12px', color: '#6b7280' }}>Swell</div>
+                        </div>
+                        <div style={{ textAlign: 'center' }}>
+                          <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#2563eb', marginBottom: '4px' }}>
+                            {prediction.currentForecast.wind_speed || 'N/A'}kt
+                          </div>
+                          <div style={{ fontSize: '12px', color: '#6b7280' }}>Wind</div>
+                        </div>
+                        <div style={{ textAlign: 'center' }}>
+                          <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#2563eb', marginBottom: '4px' }}>
+                            {prediction.currentForecast.swell_period || 'N/A'}s
+                          </div>
+                          <div style={{ fontSize: '12px', color: '#6b7280' }}>Period</div>
+                        </div>
+                        <div style={{ textAlign: 'center' }}>
+                          <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#2563eb', marginBottom: '4px' }}>
+                            {prediction.currentForecast.swell_direction || 'N/A'}
+                          </div>
+                          <div style={{ fontSize: '12px', color: '#6b7280' }}>Direction</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-
-                {prediction.prediction !== 'unknown' && (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-blue-500">{prediction.confidence}%</div>
-                      <div className="text-gray-600 text-sm">Confidence</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-500">{prediction.similarSessions}</div>
-                      <div className="text-gray-600 text-sm">Similar Sessions</div>
-                    </div>
-                    <div className="text-center">
-                      <button 
-                        onClick={() => router.push(`/log-surf?break=${prediction.breakId}`)}
-                        className="bg-green-500 text-white px-4 py-2 rounded text-sm hover:bg-green-600"
-                      >
-                        Log Today's Surf
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {prediction.currentForecast && (
-                  <div className="border-t pt-4">
-                    <h4 className="font-semibold mb-2">Current Conditions:</h4>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                      <div>
-                        <span className="text-gray-600">Swell:</span> {prediction.currentForecast.swell_height || 'N/A'}ft
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Wind:</span> {prediction.currentForecast.wind_speed || 'N/A'}kt
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Period:</span> {prediction.currentForecast.swell_period || 'N/A'}s
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Direction:</span> {prediction.currentForecast.swell_direction || 'N/A'}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
