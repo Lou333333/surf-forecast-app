@@ -99,15 +99,6 @@ function LogSurfContent() {
     }
   }
 
-  const getRatingColor = (ratingType: string) => {
-    switch (ratingType) {
-      case 'amazing': return 'bg-green-500 hover:bg-green-600 border-green-500'
-      case 'fun': return 'bg-yellow-500 hover:bg-yellow-600 border-yellow-500'
-      case 'bad': return 'bg-red-500 hover:bg-red-600 border-red-500'
-      default: return 'bg-gray-200 hover:bg-gray-300 border-gray-300'
-    }
-  }
-
   if (breaks.length === 0) {
     return (
       <div className="min-h-screen bg-blue-50">
@@ -143,10 +134,10 @@ function LogSurfContent() {
             <h1 className="text-2xl font-bold text-gray-800">Log Surf Session</h1>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-8">
             {/* Break Selection */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <label className="block text-sm font-medium text-gray-700 mb-3">
                 Surf Break
               </label>
               <select
@@ -165,8 +156,8 @@ function LogSurfContent() {
             </div>
 
             {/* Rating Selection */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <label className="block text-sm font-medium text-gray-700 mb-4">
                 How was the surf?
               </label>
               <div className="grid grid-cols-3 gap-3">
@@ -179,23 +170,31 @@ function LogSurfContent() {
                     key={option.value}
                     type="button"
                     onClick={() => setRating(option.value)}
-                    className={`p-4 border-2 rounded-lg text-center transition-all duration-200 ${
+                    className={`p-4 border-4 rounded-xl text-center transition-all ${
                       rating === option.value
-                        ? `${getRatingColor(option.value)} text-white font-bold shadow-lg transform scale-105`
-                        : 'bg-gray-100 border-gray-200 hover:bg-gray-200 text-gray-700 hover:shadow-md'
+                        ? option.value === 'amazing' 
+                          ? 'bg-green-600 border-green-800 text-white shadow-2xl'
+                          : option.value === 'fun'
+                          ? 'bg-yellow-500 border-yellow-700 text-black shadow-2xl'
+                          : 'bg-red-600 border-red-800 text-white shadow-2xl'
+                        : 'bg-white border-gray-300 text-gray-600 shadow-sm hover:shadow-md'
                     }`}
                   >
-                    <div className="text-2xl mb-1">{option.emoji}</div>
-                    <div className="font-semibold">{option.label}</div>
-                    <div className="text-xs opacity-75 mt-1">{option.desc}</div>
+                    <div className="text-3xl mb-2">{option.emoji}</div>
+                    <div className={`font-bold text-lg ${rating === option.value ? 'text-white' : 'text-gray-700'}`}>
+                      {option.label}
+                    </div>
+                    <div className={`text-xs mt-1 ${rating === option.value ? 'text-white opacity-90' : 'text-gray-500'}`}>
+                      {option.desc}
+                    </div>
                   </button>
                 ))}
               </div>
             </div>
 
             {/* Date Selection */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <label className="block text-sm font-medium text-gray-700 mb-3">
                 Session Date
               </label>
               <input
@@ -208,11 +207,11 @@ function LogSurfContent() {
             </div>
 
             {/* Time Selection */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <label className="block text-sm font-medium text-gray-700 mb-4">
                 Time of Day
               </label>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {[
                   { value: '6am', label: '6-8AM' },
                   { value: '8am', label: '8-10AM' },
@@ -226,23 +225,25 @@ function LogSurfContent() {
                     key={option.value}
                     type="button"
                     onClick={() => setSessionTime(option.value)}
-                    className={`p-3 border-2 rounded-lg text-center transition-all duration-200 ${
+                    className={`p-4 border-4 rounded-xl text-center transition-all ${
                       sessionTime === option.value
-                        ? 'bg-blue-500 border-blue-500 text-white font-bold shadow-lg transform scale-105'
-                        : 'bg-gray-100 border-gray-200 hover:bg-gray-200 text-gray-700 hover:shadow-md'
+                        ? 'bg-blue-600 border-blue-800 text-white shadow-2xl'
+                        : 'bg-white border-gray-300 text-gray-600 shadow-sm hover:shadow-md'
                     }`}
                   >
-                    <div className="font-semibold">{option.label}</div>
+                    <div className={`font-bold text-lg ${sessionTime === option.value ? 'text-white' : 'text-gray-700'}`}>
+                      {option.label}
+                    </div>
                   </button>
                 ))}
               </div>
             </div>
 
             {message && (
-              <div className={`text-center py-2 px-4 rounded ${
+              <div className={`text-center py-3 px-4 rounded-lg font-semibold ${
                 message.includes('success') 
-                  ? 'bg-green-100 text-green-700' 
-                  : 'bg-red-100 text-red-700'
+                  ? 'bg-green-100 text-green-800 border-2 border-green-300' 
+                  : 'bg-red-100 text-red-800 border-2 border-red-300'
               }`}>
                 {message}
               </div>
@@ -251,7 +252,7 @@ function LogSurfContent() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-500 text-white py-3 px-4 rounded-md hover:bg-blue-600 disabled:opacity-50 font-semibold"
+              className="w-full bg-blue-600 text-white py-4 px-6 rounded-xl hover:bg-blue-700 disabled:opacity-50 font-bold text-lg shadow-lg"
             >
               {loading ? 'Logging Session...' : 'Log Surf Session'}
             </button>
