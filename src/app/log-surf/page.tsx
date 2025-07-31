@@ -134,9 +134,9 @@ function LogSurfContent() {
             <h1 className="text-2xl font-bold text-gray-800">Log Surf Session</h1>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
             {/* Break Selection */}
-            <div className="bg-gray-50 p-6 rounded-lg">
+            <div style={{ backgroundColor: '#f8fafc', padding: '24px', borderRadius: '12px', border: '2px solid #e2e8f0' }}>
               <label className="block text-sm font-medium text-gray-700 mb-3">
                 Surf Break
               </label>
@@ -156,44 +156,42 @@ function LogSurfContent() {
             </div>
 
             {/* Rating Selection */}
-            <div className="bg-gray-50 p-6 rounded-lg">
+            <div style={{ backgroundColor: '#f8fafc', padding: '24px', borderRadius: '12px', border: '2px solid #e2e8f0' }}>
               <label className="block text-sm font-medium text-gray-700 mb-4">
                 How was the surf?
               </label>
-              <div className="grid grid-cols-3 gap-3">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
                 {[
-                  { value: 'amazing', label: 'Amazing', emoji: '🤩', desc: 'Epic session!' },
-                  { value: 'fun', label: 'Fun', emoji: '😊', desc: 'Good waves' },
-                  { value: 'bad', label: 'Bad', emoji: '😞', desc: 'Poor conditions' }
+                  { value: 'amazing', label: 'Amazing', emoji: '🤩', desc: 'Epic session!', color: '#16a34a' },
+                  { value: 'fun', label: 'Fun', emoji: '😊', desc: 'Good waves', color: '#eab308' },
+                  { value: 'bad', label: 'Bad', emoji: '😞', desc: 'Poor conditions', color: '#dc2626' }
                 ].map((option) => (
                   <button
                     key={option.value}
                     type="button"
                     onClick={() => setRating(option.value)}
-                    className={`p-4 border-4 rounded-xl text-center transition-all ${
-                      rating === option.value
-                        ? option.value === 'amazing' 
-                          ? 'bg-green-600 border-green-800 text-white shadow-2xl'
-                          : option.value === 'fun'
-                          ? 'bg-yellow-500 border-yellow-700 text-black shadow-2xl'
-                          : 'bg-red-600 border-red-800 text-white shadow-2xl'
-                        : 'bg-white border-gray-300 text-gray-600 shadow-sm hover:shadow-md'
-                    }`}
+                    style={{
+                      padding: '16px',
+                      border: rating === option.value ? `4px solid ${option.color}` : '4px solid #d1d5db',
+                      borderRadius: '12px',
+                      textAlign: 'center',
+                      backgroundColor: rating === option.value ? option.color : '#ffffff',
+                      color: rating === option.value ? '#ffffff' : '#374151',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      boxShadow: rating === option.value ? '0 10px 25px rgba(0,0,0,0.2)' : '0 2px 4px rgba(0,0,0,0.1)'
+                    }}
                   >
-                    <div className="text-3xl mb-2">{option.emoji}</div>
-                    <div className={`font-bold text-lg ${rating === option.value ? 'text-white' : 'text-gray-700'}`}>
-                      {option.label}
-                    </div>
-                    <div className={`text-xs mt-1 ${rating === option.value ? 'text-white opacity-90' : 'text-gray-500'}`}>
-                      {option.desc}
-                    </div>
+                    <div style={{ fontSize: '24px', marginBottom: '8px' }}>{option.emoji}</div>
+                    <div style={{ fontWeight: 'bold', fontSize: '16px' }}>{option.label}</div>
+                    <div style={{ fontSize: '12px', opacity: 0.8, marginTop: '4px' }}>{option.desc}</div>
                   </button>
                 ))}
               </div>
             </div>
 
             {/* Date Selection */}
-            <div className="bg-gray-50 p-6 rounded-lg">
+            <div style={{ backgroundColor: '#f8fafc', padding: '24px', borderRadius: '12px', border: '2px solid #e2e8f0' }}>
               <label className="block text-sm font-medium text-gray-700 mb-3">
                 Session Date
               </label>
@@ -207,11 +205,11 @@ function LogSurfContent() {
             </div>
 
             {/* Time Selection */}
-            <div className="bg-gray-50 p-6 rounded-lg">
+            <div style={{ backgroundColor: '#f8fafc', padding: '24px', borderRadius: '12px', border: '2px solid #e2e8f0' }}>
               <label className="block text-sm font-medium text-gray-700 mb-4">
                 Time of Day
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '12px' }}>
                 {[
                   { value: '6am', label: '6-8AM' },
                   { value: '8am', label: '8-10AM' },
@@ -225,26 +223,36 @@ function LogSurfContent() {
                     key={option.value}
                     type="button"
                     onClick={() => setSessionTime(option.value)}
-                    className={`p-4 border-4 rounded-xl text-center transition-all ${
-                      sessionTime === option.value
-                        ? 'bg-blue-600 border-blue-800 text-white shadow-2xl'
-                        : 'bg-white border-gray-300 text-gray-600 shadow-sm hover:shadow-md'
-                    }`}
+                    style={{
+                      padding: '16px',
+                      border: sessionTime === option.value ? '4px solid #2563eb' : '4px solid #d1d5db',
+                      borderRadius: '12px',
+                      textAlign: 'center',
+                      backgroundColor: sessionTime === option.value ? '#2563eb' : '#ffffff',
+                      color: sessionTime === option.value ? '#ffffff' : '#374151',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      boxShadow: sessionTime === option.value ? '0 10px 25px rgba(0,0,0,0.2)' : '0 2px 4px rgba(0,0,0,0.1)',
+                      fontWeight: 'bold',
+                      fontSize: '16px'
+                    }}
                   >
-                    <div className={`font-bold text-lg ${sessionTime === option.value ? 'text-white' : 'text-gray-700'}`}>
-                      {option.label}
-                    </div>
+                    {option.label}
                   </button>
                 ))}
               </div>
             </div>
 
             {message && (
-              <div className={`text-center py-3 px-4 rounded-lg font-semibold ${
-                message.includes('success') 
-                  ? 'bg-green-100 text-green-800 border-2 border-green-300' 
-                  : 'bg-red-100 text-red-800 border-2 border-red-300'
-              }`}>
+              <div style={{
+                textAlign: 'center',
+                padding: '12px 16px',
+                borderRadius: '8px',
+                fontWeight: 'bold',
+                backgroundColor: message.includes('success') ? '#dcfce7' : '#fecaca',
+                color: message.includes('success') ? '#166534' : '#991b1b',
+                border: message.includes('success') ? '2px solid #bbf7d0' : '2px solid #fca5a5'
+              }}>
                 {message}
               </div>
             )}
@@ -252,11 +260,23 @@ function LogSurfContent() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-4 px-6 rounded-xl hover:bg-blue-700 disabled:opacity-50 font-bold text-lg shadow-lg"
+              onClick={handleSubmit}
+              style={{
+                width: '100%',
+                backgroundColor: loading ? '#9ca3af' : '#2563eb',
+                color: '#ffffff',
+                padding: '16px 24px',
+                borderRadius: '12px',
+                border: 'none',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                fontWeight: 'bold',
+                fontSize: '18px',
+                boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+              }}
             >
               {loading ? 'Logging Session...' : 'Log Surf Session'}
             </button>
-          </form>
+          </div>
         </div>
       </div>
     </div>
