@@ -115,115 +115,187 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-blue-50">
       <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold text-gray-800">
-              Surf Dashboard
-            </h1>
-            <div className="flex space-x-2">
-              <button
-                onClick={() => router.push('/predictions')}
-                className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
-              >
-                View Predictions
-              </button>
-              <button
-                onClick={handleLogout}
-                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-              >
-                Logout
-              </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+          {/* Header */}
+          <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', padding: '24px', border: '2px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <h1 style={{ fontSize: '32px', fontWeight: 'bold', color: '#1f2937', margin: 0 }}>
+                Surf Dashboard
+              </h1>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button
+                  onClick={() => router.push('/predictions')}
+                  style={{
+                    backgroundColor: '#7c3aed',
+                    color: '#ffffff',
+                    padding: '12px 16px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                  }}
+                >
+                  View Predictions
+                </button>
+                <button
+                  onClick={handleLogout}
+                  style={{
+                    backgroundColor: '#dc2626',
+                    color: '#ffffff',
+                    padding: '12px 16px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                  }}
+                >
+                  Logout
+                </button>
+              </div>
             </div>
-          </div>
-          <p className="text-gray-600 mt-2">
-            Welcome, {user?.email}!
-          </p>
-        </div>
-
-        {/* Quick Stats */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4">Quick Stats</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-500">{breaks.length}</div>
-              <div className="text-gray-600">Surf Breaks</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-500">{sessionStats.total}</div>
-              <div className="text-gray-600">Sessions Logged</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-yellow-500">{sessionStats.amazing}</div>
-              <div className="text-gray-600">Amazing Sessions</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-red-500">{sessionStats.bad}</div>
-              <div className="text-gray-600">Bad Sessions</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Surf Breaks Section */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Your Surf Breaks</h2>
-            <button
-              onClick={() => router.push('/add-break')}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            >
-              Add New Break
-            </button>
+            <p style={{ color: '#6b7280', margin: 0, fontSize: '16px' }}>
+              Welcome, {user?.email}!
+            </p>
           </div>
 
-          {breaks.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-gray-600 mb-4">
-                No surf breaks added yet. Let&apos;s add your first break!
-              </p>
+          {/* Quick Stats */}
+          <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', padding: '24px', border: '2px solid #e2e8f0' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '24px', color: '#1f2937' }}>Quick Stats</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '24px' }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#2563eb', marginBottom: '8px' }}>{breaks.length}</div>
+                <div style={{ color: '#6b7280', fontSize: '16px' }}>Surf Breaks</div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#16a34a', marginBottom: '8px' }}>{sessionStats.total}</div>
+                <div style={{ color: '#6b7280', fontSize: '16px' }}>Sessions Logged</div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#eab308', marginBottom: '8px' }}>{sessionStats.amazing}</div>
+                <div style={{ color: '#6b7280', fontSize: '16px' }}>Amazing Sessions</div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#dc2626', marginBottom: '8px' }}>{sessionStats.bad}</div>
+                <div style={{ color: '#6b7280', fontSize: '16px' }}>Bad Sessions</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Surf Breaks Section */}
+          <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', padding: '24px', border: '2px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1f2937', margin: 0 }}>Your Surf Breaks</h2>
               <button
                 onClick={() => router.push('/add-break')}
-                className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
+                style={{
+                  backgroundColor: '#2563eb',
+                  color: '#ffffff',
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                }}
               >
-                Add Your First Break
+                Add New Break
               </button>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {breaks.map((surfBreak) => (
-                <div key={surfBreak.id} className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-semibold text-lg">{surfBreak.name}</h3>
-                    <button
-                      onClick={() => deleteBreak(surfBreak.id)}
-                      className="text-red-500 hover:text-red-700 text-sm"
-                    >
-                      Delete
-                    </button>
+
+            {breaks.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '32px' }}>
+                <p style={{ color: '#6b7280', marginBottom: '16px', fontSize: '16px' }}>
+                  No surf breaks added yet. Let's add your first break!
+                </p>
+                <button
+                  onClick={() => router.push('/add-break')}
+                  style={{
+                    backgroundColor: '#2563eb',
+                    color: '#ffffff',
+                    padding: '12px 24px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                  }}
+                >
+                  Add Your First Break
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
+                {breaks.map((surfBreak) => (
+                  <div key={surfBreak.id} style={{ 
+                    border: '2px solid #e5e7eb', 
+                    borderRadius: '12px', 
+                    padding: '20px',
+                    backgroundColor: '#f8fafc',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                      <h3 style={{ fontWeight: 'bold', fontSize: '20px', color: '#1f2937', margin: 0 }}>{surfBreak.name}</h3>
+                      <button
+                        onClick={() => deleteBreak(surfBreak.id)}
+                        style={{
+                          color: '#dc2626',
+                          backgroundColor: 'transparent',
+                          border: 'none',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                          padding: '4px 8px',
+                          borderRadius: '4px'
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                    <p style={{ color: '#6b7280', marginBottom: '16px', fontSize: '14px' }}>
+                      {surfBreak.region} forecast region
+                    </p>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      <button
+                        onClick={() => router.push(`/log-surf?break=${surfBreak.id}`)}
+                        style={{
+                          backgroundColor: '#16a34a',
+                          color: '#ffffff',
+                          padding: '8px 12px',
+                          borderRadius: '6px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                          fontWeight: 'bold',
+                          boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                        }}
+                      >
+                        Log Surf
+                      </button>
+                      <a
+                        href={surfBreak.swellnet_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          backgroundColor: '#2563eb',
+                          color: '#ffffff',
+                          padding: '8px 12px',
+                          borderRadius: '6px',
+                          textDecoration: 'none',
+                          fontSize: '14px',
+                          fontWeight: 'bold',
+                          boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                          display: 'inline-block'
+                        }}
+                      >
+                        View WillyWeather
+                      </a>
+                    </div>
                   </div>
-                  <p className="text-gray-600 mb-3">
-                    {surfBreak.region} forecast region
-                  </p>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => router.push(`/log-surf?break=${surfBreak.id}`)}
-                      className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
-                    >
-                      Log Surf
-                    </button>
-                    <a
-                      href={surfBreak.swellnet_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 inline-block"
-                    >
-                      View WillyWeather
-                    </a>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
