@@ -14,7 +14,7 @@ function LogSurfContent() {
   const [selectedBreakId, setSelectedBreakId] = useState('')
   const [rating, setRating] = useState<'amazing' | 'fun' | 'bad' | ''>('')
   const [sessionDate, setSessionDate] = useState('')
-  const [sessionTime, setSessionTime] = useState<'morning' | 'midday' | 'afternoon' | ''>('')
+  const [sessionTime, setSessionTime] = useState<'6am' | '8am' | '10am' | '12pm' | '2pm' | '4pm' | '6pm' | ''>('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const router = useRouter()
@@ -213,11 +213,15 @@ function LogSurfContent() {
                 Time of Day
               </label>
               <div className="grid grid-cols-3 gap-3">
-                {[
-                  { value: 'morning', label: 'Morning', time: '6AM - 10AM' },
-                  { value: 'midday', label: 'Midday', time: '10AM - 3PM' },
-                  { value: 'afternoon', label: 'Afternoon', time: '3PM - 7PM' }
-                ].map((option) => (
+               {[
+  { value: '6am', label: '6AM', time: '6-8AM' },
+  { value: '8am', label: '8AM', time: '8-10AM' },
+  { value: '10am', label: '10AM', time: '10AM-12PM' },
+  { value: '12pm', label: '12PM', time: '12-2PM' },
+  { value: '2pm', label: '2PM', time: '2-4PM' },
+  { value: '4pm', label: '4PM', time: '4-6PM' },
+  { value: '6pm', label: '6PM', time: '6-8PM' }
+].map((option) => (
                   <button
                     key={option.value}
                     type="button"
