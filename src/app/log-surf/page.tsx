@@ -12,9 +12,9 @@ interface SurfBreak {
 function LogSurfContent() {
   const [breaks, setBreaks] = useState<SurfBreak[]>([])
   const [selectedBreakId, setSelectedBreakId] = useState('')
-  const [rating, setRating] = useState<'amazing' | 'fun' | 'bad' | ''>('')
+  const [rating, setRating] = useState('')
   const [sessionDate, setSessionDate] = useState('')
-  const [sessionTime, setSessionTime] = useState<'6am' | '8am' | '10am' | '12pm' | '2pm' | '4pm' | '6pm' | ''>('')
+  const [sessionTime, setSessionTime] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const router = useRouter()
@@ -178,12 +178,12 @@ function LogSurfContent() {
                   <button
                     key={option.value}
                     type="button"
-                    onClick={() => setRating(option.value as any)}
-                    className={`p-4 border-2 rounded-lg text-center transition-colors ${
+                    onClick={() => setRating(option.value)}
+                    className={`p-4 border-2 rounded-lg text-center transition-all duration-200 ${
                       rating === option.value
-                        ? getRatingColor(option.value)
-                        : 'bg-gray-100 border-gray-200 hover:bg-gray-200'
-                    } ${rating === option.value ? 'text-white' : 'text-gray-700'}`}
+                        ? `${getRatingColor(option.value)} text-white font-bold shadow-lg transform scale-105`
+                        : 'bg-gray-100 border-gray-200 hover:bg-gray-200 text-gray-700 hover:shadow-md'
+                    }`}
                   >
                     <div className="text-2xl mb-1">{option.emoji}</div>
                     <div className="font-semibold">{option.label}</div>
@@ -213,27 +213,26 @@ function LogSurfContent() {
                 Time of Day
               </label>
               <div className="grid grid-cols-3 gap-3">
-               {[
-  { value: '6am', label: '6-8AM', time: '' },
-  { value: '8am', label: '8-10AM', time: '' },
-  { value: '10am', label: '10AM-12PM', time: '' },
-  { value: '12pm', label: '12-2PM', time: '' },
-  { value: '2pm', label: '2-4PM', time: '' },
-  { value: '4pm', label: '4-6PM', time: '' },
-  { value: '6pm', label: '6-8PM', time: '' }
-].map((option) => (
+                {[
+                  { value: '6am', label: '6-8AM' },
+                  { value: '8am', label: '8-10AM' },
+                  { value: '10am', label: '10AM-12PM' },
+                  { value: '12pm', label: '12-2PM' },
+                  { value: '2pm', label: '2-4PM' },
+                  { value: '4pm', label: '4-6PM' },
+                  { value: '6pm', label: '6-8PM' }
+                ].map((option) => (
                   <button
                     key={option.value}
                     type="button"
-                    onClick={() => setSessionTime(option.value as any)}
-                    className={`p-3 border-2 rounded-lg text-center transition-colors ${
+                    onClick={() => setSessionTime(option.value)}
+                    className={`p-3 border-2 rounded-lg text-center transition-all duration-200 ${
                       sessionTime === option.value
-                        ? 'bg-blue-500 border-blue-500 text-white'
-                        : 'bg-gray-100 border-gray-200 hover:bg-gray-200 text-gray-700'
+                        ? 'bg-blue-500 border-blue-500 text-white font-bold shadow-lg transform scale-105'
+                        : 'bg-gray-100 border-gray-200 hover:bg-gray-200 text-gray-700 hover:shadow-md'
                     }`}
                   >
                     <div className="font-semibold">{option.label}</div>
-                    <div className="text-sm opacity-75">{option.time}</div>
                   </button>
                 ))}
               </div>
