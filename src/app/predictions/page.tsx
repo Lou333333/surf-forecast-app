@@ -336,13 +336,13 @@ export default function Predictions() {
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '16px' }}>
                         <div style={{ textAlign: 'center' }}>
                           <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#2563eb', marginBottom: '4px' }}>
-                            {prediction.currentForecast.swell_height || 'N/A'}ft
+                            {prediction.currentForecast.swell_height || 'N/A'}m
                           </div>
                           <div style={{ fontSize: '12px', color: '#6b7280' }}>Swell</div>
                         </div>
                         <div style={{ textAlign: 'center' }}>
                           <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#2563eb', marginBottom: '4px' }}>
-                            {prediction.currentForecast.wind_speed || 'N/A'}kt
+                            {prediction.currentForecast.wind_speed || 'N/A'}km/h
                           </div>
                           <div style={{ fontSize: '12px', color: '#6b7280' }}>Wind</div>
                         </div>
