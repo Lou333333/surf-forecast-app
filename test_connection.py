@@ -9,18 +9,46 @@ from supabase import create_client, Client
 from dotenv import load_dotenv
 
 # Load environment variables
-load_dotenv()
+load_dotenv('.env.local')
+
+def test_env_variables():
+    """Test if environment variables are loaded"""
+    print("🔧 Checking environment variables...")
+    
+    supabase_url = os.getenv("NEXT_PUBLIC_SUPABASE_URL")
+    supabase_service_key = os.getenv("SUPABASE_SERVICE_KEY") 
+    willy_key = os.getenv("WILLY_WEATHER_API_KEY")
+    
+    if not supabase_url:
+        print("❌ NEXT_PUBLIC_SUPABASE_URL not found")
+        return False
+    if not supabase_service_key:
+        print("❌ SUPABASE_SERVICE_KEY not found")
+        return False
+    if not willy_key:
+        print("❌ WILLY_WEATHER_API_KEY not found")
+        return False
+        
+    print("✅ All environment variables found")
+    print(f"  Supabase URL: {supabase_url[:30]}...")
+    print(f"  Service Key: {supabase_service_key[:30]}...")
+    print(f"  Willy Key: {willy_key[:20]}...")
+    return True
 
 def test_supabase_connection():
     """Test direct Supabase connection from scraper"""
-    print("🧪 Testing Supabase connection from scraper...")
+    print("\n🧪 Testing Supabase connection from scraper...")
     
     try:
-        # Initialize Supabase client
-        supabase: Client = create_client(
-            os.getenv("NEXT_PUBLIC_SUPABASE_URL"),
-            os.getenv("NEXT_PUBLIC_SUPABASE_ANON_KEY")  # Use anon key for testing
-        )
+        supabase_url = os.getenv("NEXT_PUBLIC_SUPABASE_URL")
+        supabase_service_key = os.getenv("SUPABASE_SERVICE_KEY")  # Use service key
+        
+        if not supabase_url or not supabase_service_key:
+            print("❌ Supabase credentials not found in environment")
+            return False
+        
+        # Initialize Supabase client with SERVICE KEY
+        supabase: Client = create_client(supabase_url, supabase_service_key)
         
         # Test reading surf breaks
         response = supabase.table('surf_breaks').select('id, name, region').limit(3).execute()
@@ -41,10 +69,15 @@ def test_supabase_connection():
 
 def test_deployed_app_api(app_url):
     """Test the deployed app's API endpoint"""
-    print(f"\n🌐 Testing deployed app API at {app_url}...")
+    # Ensure URL has https://
+    if not app_url.startswith('http'):
+        app_url = f"https://{app_url}"
+    
+    api_url = f"{app_url}/api/test-db"
+    print(f"\n🌐 Testing deployed app API at {api_url}...")
     
     try:
-        response = requests.get(f"{app_url}/api/test-db", timeout=10)
+        response = requests.get(api_url, timeout=10)
         
         if response.status_code == 200:
             data = response.json()
@@ -56,7 +89,7 @@ def test_deployed_app_api(app_url):
             return True
         else:
             print(f"❌ API returned status {response.status_code}")
-            print(f"Response: {response.text}")
+            print(f"Response: {response.text[:200]}...")
             return False
             
     except Exception as e:
@@ -100,10 +133,14 @@ def test_scraper_data_insert():
     print("\n💾 Testing forecast data insertion...")
     
     try:
-        supabase: Client = create_client(
-            os.getenv("NEXT_PUBLIC_SUPABASE_URL"),
-            os.getenv("NEXT_PUBLIC_SUPABASE_ANON_KEY")
-        )
+        supabase_url = os.getenv("NEXT_PUBLIC_SUPABASE_URL")
+        supabase_service_key = os.getenv("SUPABASE_SERVICE_KEY")  # Use service key
+        
+        if not supabase_url or not supabase_service_key:
+            print("❌ Supabase credentials not found")
+            return False
+        
+        supabase: Client = create_client(supabase_url, supabase_service_key)
         
         # Get first surf break for testing
         breaks_response = supabase.table('surf_breaks').select('id').limit(1).execute()
@@ -143,6 +180,12 @@ def test_scraper_data_insert():
 def main():
     print("🧪 Starting Scraper → Deployed App Connection Test\n")
     
+    # Test 0: Environment variables
+    env_ok = test_env_variables()
+    if not env_ok:
+        print("\n❌ Environment variables missing. Please check your .env file")
+        return
+    
     # Test 1: Direct Supabase connection
     supabase_ok = test_supabase_connection()
     
@@ -152,21 +195,20 @@ def main():
     # Test 3: Data insertion
     insert_ok = test_scraper_data_insert()
     
-    # Test 4: Deployed app API (if URL provided)
-    app_url = input("\n🌐 Enter your deployed app URL (e.g., https://your-app.vercel.app) or press Enter to skip: ").strip()
-    
-    deployed_ok = True
-    if app_url:
-        deployed_ok = test_deployed_app_api(app_url)
+    # Test 4: Deployed app API
+    print("\n🌐 Testing deployed app API...")
+    app_url = "surf-forecast-app-beta.vercel.app"  # Your app URL
+    deployed_ok = test_deployed_app_api(app_url)
     
     # Summary
     print(f"\n📋 Test Results Summary:")
+    print(f"  Environment Variables: {'✅' if env_ok else '❌'}")
     print(f"  Supabase Connection: {'✅' if supabase_ok else '❌'}")
     print(f"  WillyWeather API: {'✅' if api_ok else '❌'}")
     print(f"  Data Insertion: {'✅' if insert_ok else '❌'}")
-    print(f"  Deployed App: {'✅' if deployed_ok else '❌' if app_url else '⏭️  Skipped'}")
+    print(f"  Deployed App: {'✅' if deployed_ok else '❌'}")
     
-    if all([supabase_ok, api_ok, insert_ok, deployed_ok]):
+    if all([env_ok, supabase_ok, api_ok, insert_ok, deployed_ok]):
         print("\n🎉 All tests passed! Your scraper should work with the deployed app.")
     else:
         print("\n⚠️  Some tests failed. Check the errors above before running the full scraper.")
