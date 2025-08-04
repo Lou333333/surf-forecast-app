@@ -23,6 +23,22 @@ export default function Predictions() {
     loadPredictions()
   }, [])
 
+  // Helper function to convert wind direction degrees to compass direction
+  const getWindDirectionText = (degrees?: number | string): string => {
+    if (!degrees) return 'N/A'
+    
+    const deg = typeof degrees === 'string' ? parseFloat(degrees) : degrees
+    if (isNaN(deg)) return 'N/A'
+    
+    const directions = [
+      'N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
+      'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'
+    ]
+    
+    const index = Math.round(deg / 22.5) % 16
+    return directions[index]
+  }
+
   const loadPredictions = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser()
@@ -170,23 +186,33 @@ export default function Predictions() {
     if (current.wind_speed && historical.wind_speed) {
       const windDiff = Math.abs(current.wind_speed - historical.wind_speed)
       const windSimilarity = Math.max(0, 1 - (windDiff / 20)) // 20kt tolerance
-      similarityScore += windSimilarity * 0.3 // 30% weight
-      factors += 0.3
+      similarityScore += windSimilarity * 0.25 // 25% weight
+      factors += 0.25
     }
 
     // Compare swell period
     if (current.swell_period && historical.swell_period) {
       const periodDiff = Math.abs(current.swell_period - historical.swell_period)
       const periodSimilarity = Math.max(0, 1 - (periodDiff / 5)) // 5s tolerance
-      similarityScore += periodSimilarity * 0.2 // 20% weight
-      factors += 0.2
+      similarityScore += periodSimilarity * 0.15 // 15% weight
+      factors += 0.15
     }
 
-    // Compare directions (simplified)
+    // Compare wind directions (IMPORTANT FOR SURF QUALITY)
     if (current.wind_direction && historical.wind_direction) {
-      const directionSimilarity = current.wind_direction === historical.wind_direction ? 1 : 0
-      similarityScore += directionSimilarity * 0.1 // 10% weight
-      factors += 0.1
+      const currentDir = parseFloat(current.wind_direction)
+      const historicalDir = parseFloat(historical.wind_direction)
+      
+      if (!isNaN(currentDir) && !isNaN(historicalDir)) {
+        // Calculate the smallest angle difference (accounting for 0/360 wrap-around)
+        let directionDiff = Math.abs(currentDir - historicalDir)
+        if (directionDiff > 180) directionDiff = 360 - directionDiff
+        
+        // Wind direction is crucial for surf quality - use a stricter tolerance
+        const directionSimilarity = Math.max(0, 1 - (directionDiff / 45)) // 45 degree tolerance
+        similarityScore += directionSimilarity * 0.2 // 20% weight (increased importance)
+        factors += 0.2
+      }
     }
 
     return factors > 0 ? similarityScore / factors : 0
@@ -342,9 +368,15 @@ export default function Predictions() {
                         </div>
                         <div style={{ textAlign: 'center' }}>
                           <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#2563eb', marginBottom: '4px' }}>
-                            {prediction.currentForecast.wind_speed || 'N/A'}km/h
+                            {prediction.currentForecast.wind_speed || 'N/A'}kt
                           </div>
-                          <div style={{ fontSize: '12px', color: '#6b7280' }}>Wind</div>
+                          <div style={{ fontSize: '12px', color: '#6b7280' }}>Wind Speed</div>
+                        </div>
+                        <div style={{ textAlign: 'center' }}>
+                          <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#2563eb', marginBottom: '4px' }}>
+                            {getWindDirectionText(prediction.currentForecast.wind_direction)}
+                          </div>
+                          <div style={{ fontSize: '12px', color: '#6b7280' }}>Wind Direction</div>
                         </div>
                         <div style={{ textAlign: 'center' }}>
                           <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#2563eb', marginBottom: '4px' }}>
@@ -354,9 +386,9 @@ export default function Predictions() {
                         </div>
                         <div style={{ textAlign: 'center' }}>
                           <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#2563eb', marginBottom: '4px' }}>
-                            {prediction.currentForecast.swell_direction || 'N/A'}
+                            {prediction.currentForecast.swell_direction || 'N/A'}°
                           </div>
-                          <div style={{ fontSize: '12px', color: '#6b7280' }}>Direction</div>
+                          <div style={{ fontSize: '12px', color: '#6b7280' }}>Swell Direction</div>
                         </div>
                       </div>
                     </div>
