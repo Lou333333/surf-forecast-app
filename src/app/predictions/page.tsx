@@ -419,7 +419,14 @@ export default function Predictions() {
                           <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#2563eb', marginBottom: '4px' }}>
                             {prediction.currentForecast.tide_height ? `${Math.round(prediction.currentForecast.tide_height * 10) / 10}m` : 'N/A'}
                           </div>
-                          <div style={{ fontSize: '12px', color: '#6b7280' }}>Tide Height</div>
+                          <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                            Tide Height
+                          </div>
+                          {prediction.currentForecast.tide_direction && (
+                            <div style={{ fontSize: '11px', color: '#059669', fontWeight: 'bold', marginTop: '2px' }}>
+                              {prediction.currentForecast.tide_direction}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
