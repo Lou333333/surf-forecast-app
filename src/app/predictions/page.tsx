@@ -39,6 +39,22 @@ export default function Predictions() {
     return directions[index]
   }
 
+  // Helper function to convert knots to km/h
+  const knotsToKmh = (knots?: number | string): number => {
+    if (!knots) return 0
+    const knotValue = typeof knots === 'string' ? parseFloat(knots) : knots
+    if (isNaN(knotValue)) return 0
+    return Math.round(knotValue * 1.852) // 1 knot = 1.852 km/h
+  }
+
+  // Helper function to convert feet to metres  
+  const feetToMetres = (feet?: number | string): number => {
+    if (!feet) return 0
+    const feetValue = typeof feet === 'string' ? parseFloat(feet) : feet
+    if (isNaN(feetValue)) return 0
+    return Math.round(feetValue * 0.3048 * 10) / 10 // 1 foot = 0.3048 metres, round to 1 decimal
+  }
+
   const loadPredictions = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser()
@@ -177,17 +193,17 @@ export default function Predictions() {
     // Compare swell height (most important)
     if (current.swell_height && historical.swell_height) {
       const heightDiff = Math.abs(current.swell_height - historical.swell_height)
-      const heightSimilarity = Math.max(0, 1 - (heightDiff / 3)) // 3ft tolerance
-      similarityScore += heightSimilarity * 0.4 // 40% weight
-      factors += 0.4
+      const heightSimilarity = Math.max(0, 1 - (heightDiff / 1)) // 1m tolerance
+      similarityScore += heightSimilarity * 0.35 // 35% weight
+      factors += 0.35
     }
 
     // Compare wind speed
     if (current.wind_speed && historical.wind_speed) {
       const windDiff = Math.abs(current.wind_speed - historical.wind_speed)
-      const windSimilarity = Math.max(0, 1 - (windDiff / 20)) // 20kt tolerance
-      similarityScore += windSimilarity * 0.25 // 25% weight
-      factors += 0.25
+      const windSimilarity = Math.max(0, 1 - (windDiff / 37)) // ~37 km/h (20kt) tolerance
+      similarityScore += windSimilarity * 0.2 // 20% weight
+      factors += 0.2
     }
 
     // Compare swell period
@@ -210,9 +226,17 @@ export default function Predictions() {
         
         // Wind direction is crucial for surf quality - use a stricter tolerance
         const directionSimilarity = Math.max(0, 1 - (directionDiff / 45)) // 45 degree tolerance
-        similarityScore += directionSimilarity * 0.2 // 20% weight (increased importance)
-        factors += 0.2
+        similarityScore += directionSimilarity * 0.15 // 15% weight
+        factors += 0.15
       }
+    }
+
+    // Compare tide height (important for surf quality)
+    if (current.tide_height && historical.tide_height) {
+      const tideDiff = Math.abs(current.tide_height - historical.tide_height)
+      const tideSimilarity = Math.max(0, 1 - (tideDiff / 2)) // 2m tide tolerance
+      similarityScore += tideSimilarity * 0.15 // 15% weight
+      factors += 0.15
     }
 
     return factors > 0 ? similarityScore / factors : 0
@@ -359,16 +383,16 @@ export default function Predictions() {
                   {prediction.currentForecast && (
                     <div style={{ borderTop: '2px solid #e5e7eb', paddingTop: '20px', backgroundColor: '#f8fafc', padding: '20px', borderRadius: '8px', marginTop: '16px' }}>
                       <h4 style={{ fontWeight: 'bold', marginBottom: '12px', color: '#1f2937', fontSize: '18px' }}>Current Conditions:</h4>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '16px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: '16px' }}>
                         <div style={{ textAlign: 'center' }}>
                           <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#2563eb', marginBottom: '4px' }}>
-                            {prediction.currentForecast.swell_height || 'N/A'}m
+                            {feetToMetres(prediction.currentForecast.swell_height) || 'N/A'}m
                           </div>
                           <div style={{ fontSize: '12px', color: '#6b7280' }}>Swell</div>
                         </div>
                         <div style={{ textAlign: 'center' }}>
                           <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#2563eb', marginBottom: '4px' }}>
-                            {prediction.currentForecast.wind_speed || 'N/A'}kt
+                            {knotsToKmh(prediction.currentForecast.wind_speed) || 'N/A'}km/h
                           </div>
                           <div style={{ fontSize: '12px', color: '#6b7280' }}>Wind Speed</div>
                         </div>
@@ -389,6 +413,12 @@ export default function Predictions() {
                             {prediction.currentForecast.swell_direction || 'N/A'}°
                           </div>
                           <div style={{ fontSize: '12px', color: '#6b7280' }}>Swell Direction</div>
+                        </div>
+                        <div style={{ textAlign: 'center' }}>
+                          <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#2563eb', marginBottom: '4px' }}>
+                            {prediction.currentForecast.tide_height ? `${Math.round(prediction.currentForecast.tide_height * 10) / 10}m` : 'N/A'}
+                          </div>
+                          <div style={{ fontSize: '12px', color: '#6b7280' }}>Tide Height</div>
                         </div>
                       </div>
                     </div>
