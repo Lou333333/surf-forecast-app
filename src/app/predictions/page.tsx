@@ -39,22 +39,6 @@ export default function Predictions() {
     return directions[index]
   }
 
-  // Helper function to convert knots to km/h
-  const knotsToKmh = (knots?: number | string): number => {
-    if (!knots) return 0
-    const knotValue = typeof knots === 'string' ? parseFloat(knots) : knots
-    if (isNaN(knotValue)) return 0
-    return Math.round(knotValue * 1.852) // 1 knot = 1.852 km/h
-  }
-
-  // Helper function to convert feet to metres  
-  const feetToMetres = (feet?: number | string): number => {
-    if (!feet) return 0
-    const feetValue = typeof feet === 'string' ? parseFloat(feet) : feet
-    if (isNaN(feetValue)) return 0
-    return Math.round(feetValue * 0.3048 * 10) / 10 // 1 foot = 0.3048 metres, round to 1 decimal
-  }
-
   const loadPredictions = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser()
@@ -193,17 +177,34 @@ export default function Predictions() {
     // Compare swell height (most important)
     if (current.swell_height && historical.swell_height) {
       const heightDiff = Math.abs(current.swell_height - historical.swell_height)
-      const heightSimilarity = Math.max(0, 1 - (heightDiff / 1)) // 1m tolerance
-      similarityScore += heightSimilarity * 0.35 // 35% weight
-      factors += 0.35
+      const heightSimilarity = Math.max(0, 1 - (heightDiff / 3)) // 3m tolerance (assuming data is in metres)
+      similarityScore += heightSimilarity * 0.3 // 30% weight
+      factors += 0.3
+    }
+
+    // Compare swell direction (very important for surf quality)
+    if (current.swell_direction && historical.swell_direction) {
+      const currentDir = parseFloat(current.swell_direction)
+      const historicalDir = parseFloat(historical.swell_direction)
+      
+      if (!isNaN(currentDir) && !isNaN(historicalDir)) {
+        // Calculate the smallest angle difference (accounting for 0/360 wrap-around)
+        let directionDiff = Math.abs(currentDir - historicalDir)
+        if (directionDiff > 180) directionDiff = 360 - directionDiff
+        
+        // Swell direction is critical - waves from different directions behave very differently
+        const directionSimilarity = Math.max(0, 1 - (directionDiff / 30)) // 30 degree tolerance
+        similarityScore += directionSimilarity * 0.2 // 20% weight
+        factors += 0.2
+      }
     }
 
     // Compare wind speed
     if (current.wind_speed && historical.wind_speed) {
       const windDiff = Math.abs(current.wind_speed - historical.wind_speed)
-      const windSimilarity = Math.max(0, 1 - (windDiff / 37)) // ~37 km/h (20kt) tolerance
-      similarityScore += windSimilarity * 0.2 // 20% weight
-      factors += 0.2
+      const windSimilarity = Math.max(0, 1 - (windDiff / 20)) // 20 km/h tolerance (assuming data is in km/h)
+      similarityScore += windSimilarity * 0.15 // 15% weight
+      factors += 0.15
     }
 
     // Compare swell period
@@ -226,8 +227,8 @@ export default function Predictions() {
         
         // Wind direction is crucial for surf quality - use a stricter tolerance
         const directionSimilarity = Math.max(0, 1 - (directionDiff / 45)) // 45 degree tolerance
-        similarityScore += directionSimilarity * 0.15 // 15% weight
-        factors += 0.15
+        similarityScore += directionSimilarity * 0.1 // 10% weight
+        factors += 0.1
       }
     }
 
@@ -235,8 +236,8 @@ export default function Predictions() {
     if (current.tide_height && historical.tide_height) {
       const tideDiff = Math.abs(current.tide_height - historical.tide_height)
       const tideSimilarity = Math.max(0, 1 - (tideDiff / 2)) // 2m tide tolerance
-      similarityScore += tideSimilarity * 0.15 // 15% weight
-      factors += 0.15
+      similarityScore += tideSimilarity * 0.1 // 10% weight
+      factors += 0.1
     }
 
     return factors > 0 ? similarityScore / factors : 0
@@ -386,13 +387,13 @@ export default function Predictions() {
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: '16px' }}>
                         <div style={{ textAlign: 'center' }}>
                           <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#2563eb', marginBottom: '4px' }}>
-                            {feetToMetres(prediction.currentForecast.swell_height) || 'N/A'}m
+                            {prediction.currentForecast.swell_height || 'N/A'}m
                           </div>
                           <div style={{ fontSize: '12px', color: '#6b7280' }}>Swell</div>
                         </div>
                         <div style={{ textAlign: 'center' }}>
                           <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#2563eb', marginBottom: '4px' }}>
-                            {knotsToKmh(prediction.currentForecast.wind_speed) || 'N/A'}km/h
+                            {prediction.currentForecast.wind_speed || 'N/A'}km/h
                           </div>
                           <div style={{ fontSize: '12px', color: '#6b7280' }}>Wind Speed</div>
                         </div>
