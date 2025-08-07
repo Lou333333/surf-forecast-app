@@ -85,23 +85,29 @@ export default function Predictions() {
       const today = new Date().toISOString().split('T')[0]
       const currentHour = new Date().getHours()
       
-      // FIXED: Better time slot mapping that covers ALL hours properly
+      // FIXED: Consistent time slot mapping - each slot covers 2-hour window
       let timeOfDay = '6am'  // Default fallback
       
-      if (currentHour >= 0 && currentHour < 7) {
-        timeOfDay = '6am'      // Late night/early morning -> use 6am
-      } else if (currentHour >= 7 && currentHour < 9) {
-        timeOfDay = '8am'      // 7am-8am -> use 8am slot
-      } else if (currentHour >= 9 && currentHour < 11) {
-        timeOfDay = '10am'     // 9am-10am -> use 10am slot
-      } else if (currentHour >= 11 && currentHour < 13) {
-        timeOfDay = '12pm'     // 11am-12pm -> use 12pm slot
-      } else if (currentHour >= 13 && currentHour < 15) {
-        timeOfDay = '2pm'      // 1pm-2pm -> use 2pm slot
-      } else if (currentHour >= 15 && currentHour < 17) {
-        timeOfDay = '4pm'      // 3pm-4pm -> use 4pm slot
-      } else if (currentHour >= 17 && currentHour < 24) {
-        timeOfDay = '6pm'      // 5pm+ -> use 6pm slot
+      if (currentHour >= 6 && currentHour < 8) {
+        timeOfDay = '6am'      // 6am-8am -> use 6am slot
+      } else if (currentHour >= 8 && currentHour < 10) {
+        timeOfDay = '8am'      // 8am-10am -> use 8am slot
+      } else if (currentHour >= 10 && currentHour < 12) {
+        timeOfDay = '10am'     // 10am-12pm -> use 10am slot
+      } else if (currentHour >= 12 && currentHour < 14) {
+        timeOfDay = '12pm'     // 12pm-2pm -> use 12pm slot
+      } else if (currentHour >= 14 && currentHour < 16) {
+        timeOfDay = '2pm'      // 2pm-4pm -> use 2pm slot
+      } else if (currentHour >= 16 && currentHour < 18) {
+        timeOfDay = '4pm'      // 4pm-6pm -> use 4pm slot
+      } else if (currentHour >= 18 && currentHour < 20) {
+        timeOfDay = '6pm'      // 6pm-8pm -> use 6pm slot
+      } else if (currentHour >= 20 && currentHour < 22) {
+        timeOfDay = '8pm'      // 8pm-10pm -> use 8pm slot
+      } else if (currentHour >= 0 && currentHour < 6) {
+        timeOfDay = '6am'      // Late night/early morning -> use 6am (next available)
+      } else {
+        timeOfDay = '8pm'      // 10pm+ -> use 8pm (latest available)
       }
       
       console.log(`🕐 Current hour: ${currentHour}, Using time slot: ${timeOfDay}`)
@@ -188,12 +194,12 @@ export default function Predictions() {
     let similarityScore = 0
     let factors = 0
 
-    // Compare swell height (most important factor - 30% weight)
+    // Compare swell height (most important factor - 25% weight)
     if (current.swell_height && historical.swell_height) {
       const heightDiff = Math.abs(current.swell_height - historical.swell_height)
       const heightSimilarity = Math.max(0, 1 - (heightDiff / 3)) // 3m tolerance
-      similarityScore += heightSimilarity * 0.3
-      factors += 0.3
+      similarityScore += heightSimilarity * 0.25
+      factors += 0.25
     }
 
     // Compare swell direction (very important for surf quality - 20% weight)
@@ -213,20 +219,35 @@ export default function Predictions() {
       }
     }
 
-    // Compare wind speed (15% weight)
-    if (current.wind_speed && historical.wind_speed) {
-      const windDiff = Math.abs(current.wind_speed - historical.wind_speed)
-      const windSimilarity = Math.max(0, 1 - (windDiff / 20)) // 20 km/h tolerance
-      similarityScore += windSimilarity * 0.15
+    // Compare tide height (important for surf quality - 15% weight)
+    if (current.tide_height && historical.tide_height) {
+      const tideDiff = Math.abs(current.tide_height - historical.tide_height)
+      const tideSimilarity = Math.max(0, 1 - (tideDiff / 2)) // 2m tide tolerance
+      similarityScore += tideSimilarity * 0.15
       factors += 0.15
     }
 
-    // Compare swell period (15% weight)
+    // Compare tide direction (rising/falling/stable - 10% weight)
+    if (current.tide_direction && historical.tide_direction) {
+      const tideDirectionSimilarity = current.tide_direction === historical.tide_direction ? 1 : 0.3
+      similarityScore += tideDirectionSimilarity * 0.1
+      factors += 0.1
+    }
+
+    // Compare wind speed (10% weight)
+    if (current.wind_speed && historical.wind_speed) {
+      const windDiff = Math.abs(current.wind_speed - historical.wind_speed)
+      const windSimilarity = Math.max(0, 1 - (windDiff / 20)) // 20 km/h tolerance
+      similarityScore += windSimilarity * 0.1
+      factors += 0.1
+    }
+
+    // Compare swell period (10% weight)
     if (current.swell_period && historical.swell_period) {
       const periodDiff = Math.abs(current.swell_period - historical.swell_period)
       const periodSimilarity = Math.max(0, 1 - (periodDiff / 5)) // 5s tolerance
-      similarityScore += periodSimilarity * 0.15
-      factors += 0.15
+      similarityScore += periodSimilarity * 0.1
+      factors += 0.1
     }
 
     // Compare wind directions (10% weight)
@@ -244,14 +265,6 @@ export default function Predictions() {
         similarityScore += directionSimilarity * 0.1
         factors += 0.1
       }
-    }
-
-    // Compare tide height (10% weight)
-    if (current.tide_height && historical.tide_height) {
-      const tideDiff = Math.abs(current.tide_height - historical.tide_height)
-      const tideSimilarity = Math.max(0, 1 - (tideDiff / 2)) // 2m tide tolerance
-      similarityScore += tideSimilarity * 0.1
-      factors += 0.1
     }
 
     return factors > 0 ? similarityScore / factors : 0
