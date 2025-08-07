@@ -81,9 +81,10 @@ export default function Predictions() {
 
       if (sessionsError) throw sessionsError
 
-      // Get current forecast for this break
-      const today = new Date().toISOString().split('T')[0]
-      const currentHour = new Date().getHours()
+      // Get Australian date and time
+      const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' })
+      const currentHour = parseInt(new Date().toLocaleString('en-US', { timeZone: 'Australia/Sydney', hour: 'numeric', hour12: false }))
+
       
       // FIXED: Consistent time slot mapping - each slot covers 2-hour window
       let timeOfDay = '6am'  // Default fallback
