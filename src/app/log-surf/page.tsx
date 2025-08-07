@@ -171,7 +171,7 @@ function LogSurfContent() {
                     type="button"
                     onClick={() => setRating(option.value)}
                     style={{
-                      padding: '16px',
+                      padding: '20px',
                       border: rating === option.value ? `4px solid ${option.color}` : '4px solid #d1d5db',
                       borderRadius: '12px',
                       textAlign: 'center',
@@ -204,7 +204,7 @@ function LogSurfContent() {
               />
             </div>
 
-            {/* Time Selection */}
+            {/* Time Selection - UPDATED with 8pm */}
             <div style={{ backgroundColor: '#f8fafc', padding: '24px', borderRadius: '12px', border: '2px solid #e2e8f0' }}>
               <label className="block text-sm font-medium text-gray-700 mb-4">
                 Time of Day
@@ -217,7 +217,8 @@ function LogSurfContent() {
                   { value: '12pm', label: '12-2PM' },
                   { value: '2pm', label: '2-4PM' },
                   { value: '4pm', label: '4-6PM' },
-                  { value: '6pm', label: '6-8PM' }
+                  { value: '6pm', label: '6-8PM' },
+                  { value: '8pm', label: '8-10PM' }
                 ].map((option) => (
                   <button
                     key={option.value}
