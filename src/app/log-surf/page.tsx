@@ -30,7 +30,7 @@ function LogSurfContent() {
     }
 
     // Set today's date as default
-    const today = new Date().toISOString().split('T')[0]
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' })
     setSessionDate(today)
   }, [searchParams])
 
