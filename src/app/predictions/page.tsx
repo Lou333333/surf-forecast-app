@@ -85,13 +85,26 @@ export default function Predictions() {
       const today = new Date().toISOString().split('T')[0]
       const currentHour = new Date().getHours()
       
-      let timeOfDay = '6am'
-      if (currentHour >= 8 && currentHour < 10) timeOfDay = '8am'
-      else if (currentHour >= 10 && currentHour < 12) timeOfDay = '10am'
-      else if (currentHour >= 12 && currentHour < 14) timeOfDay = '12pm'
-      else if (currentHour >= 14 && currentHour < 16) timeOfDay = '2pm'
-      else if (currentHour >= 16 && currentHour < 18) timeOfDay = '4pm'
-      else if (currentHour >= 18 && currentHour < 20) timeOfDay = '6pm'
+      // FIXED: Better time slot mapping that covers ALL hours properly
+      let timeOfDay = '6am'  // Default fallback
+      
+      if (currentHour >= 0 && currentHour < 7) {
+        timeOfDay = '6am'      // Late night/early morning -> use 6am
+      } else if (currentHour >= 7 && currentHour < 9) {
+        timeOfDay = '8am'      // 7am-8am -> use 8am slot
+      } else if (currentHour >= 9 && currentHour < 11) {
+        timeOfDay = '10am'     // 9am-10am -> use 10am slot
+      } else if (currentHour >= 11 && currentHour < 13) {
+        timeOfDay = '12pm'     // 11am-12pm -> use 12pm slot
+      } else if (currentHour >= 13 && currentHour < 15) {
+        timeOfDay = '2pm'      // 1pm-2pm -> use 2pm slot
+      } else if (currentHour >= 15 && currentHour < 17) {
+        timeOfDay = '4pm'      // 3pm-4pm -> use 4pm slot
+      } else if (currentHour >= 17 && currentHour < 24) {
+        timeOfDay = '6pm'      // 5pm+ -> use 6pm slot
+      }
+      
+      console.log(`🕐 Current hour: ${currentHour}, Using time slot: ${timeOfDay}`)
 
       const { data: currentForecast, error: forecastError } = await supabase
         .from('forecast_data')
@@ -102,6 +115,7 @@ export default function Predictions() {
         .single()
 
       if (forecastError || !currentForecast) {
+        console.error(`No current forecast found for ${surfBreak.name} at ${timeOfDay}`, forecastError)
         return {
           breakName: surfBreak.name,
           breakId: surfBreak.id,
@@ -174,15 +188,15 @@ export default function Predictions() {
     let similarityScore = 0
     let factors = 0
 
-    // Compare swell height (most important)
+    // Compare swell height (most important factor - 30% weight)
     if (current.swell_height && historical.swell_height) {
       const heightDiff = Math.abs(current.swell_height - historical.swell_height)
-      const heightSimilarity = Math.max(0, 1 - (heightDiff / 3)) // 3m tolerance (assuming data is in metres)
-      similarityScore += heightSimilarity * 0.3 // 30% weight
+      const heightSimilarity = Math.max(0, 1 - (heightDiff / 3)) // 3m tolerance
+      similarityScore += heightSimilarity * 0.3
       factors += 0.3
     }
 
-    // Compare swell direction (very important for surf quality)
+    // Compare swell direction (very important for surf quality - 20% weight)
     if (current.swell_direction && historical.swell_direction) {
       const currentDir = parseFloat(current.swell_direction)
       const historicalDir = parseFloat(historical.swell_direction)
@@ -194,28 +208,28 @@ export default function Predictions() {
         
         // Swell direction is critical - waves from different directions behave very differently
         const directionSimilarity = Math.max(0, 1 - (directionDiff / 30)) // 30 degree tolerance
-        similarityScore += directionSimilarity * 0.2 // 20% weight
+        similarityScore += directionSimilarity * 0.2
         factors += 0.2
       }
     }
 
-    // Compare wind speed
+    // Compare wind speed (15% weight)
     if (current.wind_speed && historical.wind_speed) {
       const windDiff = Math.abs(current.wind_speed - historical.wind_speed)
-      const windSimilarity = Math.max(0, 1 - (windDiff / 20)) // 20 km/h tolerance (assuming data is in km/h)
-      similarityScore += windSimilarity * 0.15 // 15% weight
+      const windSimilarity = Math.max(0, 1 - (windDiff / 20)) // 20 km/h tolerance
+      similarityScore += windSimilarity * 0.15
       factors += 0.15
     }
 
-    // Compare swell period
+    // Compare swell period (15% weight)
     if (current.swell_period && historical.swell_period) {
       const periodDiff = Math.abs(current.swell_period - historical.swell_period)
       const periodSimilarity = Math.max(0, 1 - (periodDiff / 5)) // 5s tolerance
-      similarityScore += periodSimilarity * 0.15 // 15% weight
+      similarityScore += periodSimilarity * 0.15
       factors += 0.15
     }
 
-    // Compare wind directions (IMPORTANT FOR SURF QUALITY)
+    // Compare wind directions (10% weight)
     if (current.wind_direction && historical.wind_direction) {
       const currentDir = parseFloat(current.wind_direction)
       const historicalDir = parseFloat(historical.wind_direction)
@@ -225,18 +239,18 @@ export default function Predictions() {
         let directionDiff = Math.abs(currentDir - historicalDir)
         if (directionDiff > 180) directionDiff = 360 - directionDiff
         
-        // Wind direction is crucial for surf quality - use a stricter tolerance
+        // Wind direction is crucial for surf quality
         const directionSimilarity = Math.max(0, 1 - (directionDiff / 45)) // 45 degree tolerance
-        similarityScore += directionSimilarity * 0.1 // 10% weight
+        similarityScore += directionSimilarity * 0.1
         factors += 0.1
       }
     }
 
-    // Compare tide height (important for surf quality)
+    // Compare tide height (10% weight)
     if (current.tide_height && historical.tide_height) {
       const tideDiff = Math.abs(current.tide_height - historical.tide_height)
       const tideSimilarity = Math.max(0, 1 - (tideDiff / 2)) // 2m tide tolerance
-      similarityScore += tideSimilarity * 0.1 // 10% weight
+      similarityScore += tideSimilarity * 0.1
       factors += 0.1
     }
 
@@ -303,6 +317,9 @@ export default function Predictions() {
               </button>
               <h1 style={{ fontSize: '32px', fontWeight: 'bold', color: '#1f2937', margin: 0 }}>Surf Predictions</h1>
             </div>
+            <p style={{ color: '#6b7280', margin: 0, fontSize: '16px' }}>
+              AI-powered predictions based on your surf session history and current conditions
+            </p>
           </div>
 
           {predictions.length === 0 ? (
